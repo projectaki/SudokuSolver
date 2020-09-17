@@ -1,63 +1,61 @@
 public class SudokuBoard {
     private final int[][] board;
-    private final int smallN;
 
-    public SudokuBoard()
+    public SudokuBoard(int[][] init)
     {
         board = new int[9][9];
-        smallN  = 3;
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                board[i][j] = init[i][j];
+            }
+        }
+
+    }
+
+    public boolean isValid(int i, int j, int numb)
+    {
+        return boxSafe(i,j,numb) && rowSafe(i,numb) && colSafe(j,numb);
     }
 
     private boolean boxSafe(int i, int j, int numb)
     {
-        //get small box from coord
-        boolean safe = false;
-        int bsI;
-        int bfI;
-        if (i % smallN == 0) bsI = i/smallN - 1;
-        else bsI = i/smallN;
-        bfI = bsI + smallN;
+        int startI;
+        int startJ;
+        if (i % 3 == 0) startI = ((i/3) - 1)*3;
+        else startI = (i/3) * 3;
+        if (j % 3 == 0) startJ = ((j/3) - 1)*3;
+        else startJ = (j/3) * 3;
 
-        int bsJ;
-        int bfJ;
-
-        if (j % smallN == 0) bsJ = j/smallN - 1;
-        else bsJ = j/smallN;
-        bfJ = bsJ + smallN;
-
-        for (int k = 0; k < 9; k++)
+        for (int k = startI; k < startI + 3; k++)
         {
-            for (int l = 0; l < 9; l++)
+            for (int l = startJ; l < startJ + 3; l++)
             {
-                if ((k >= bsI && k <= bfI) && (l >= bsJ && l <= bfJ)) {
-                    safe = numb != board[k][l];
-                }
+                if (board[k][l] == numb) return false;
             }
         }
-
-        return safe;
+        return true;
     }
 
     private boolean rowSafe(int i, int numb)
     {
-        boolean safe = false;
-        for (int k = 0; k < 9; k++)
-        {
-            for (int l = 0; l < 9; l++)
-            {
-                if (k == i)
-                {
-                    safe = numb != board[k][l];
-                }
-            }
-        }
 
-        return safe;
+        for (int j = 0; j < 9; j++)
+        {
+            if (board[i - 1][j] == numb) return false;
+        }
+        return true;
+
     }
 
     private boolean colSafe(int j, int numb)
     {
-        return false;
+        for (int i = 0; i < 9; i++)
+        {
+            if (board[i][j - 1] == numb) return false;
+        }
+        return true;
     }
 
 
