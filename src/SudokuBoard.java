@@ -1,13 +1,17 @@
+import java.util.Arrays;
+
 public class SudokuBoard {
     private final int[][] board;
     private final boolean[][] immutable;
     private int x;
     private int y;
+    private boolean finished;
 
     public SudokuBoard(int[][] init)
     {
         board = new int[9][9];
         immutable = new boolean[9][9];
+        finished = false;
         for (int i = 0; i < 9; i++)
         {
             for (int j = 0; j < 9; j++)
@@ -29,10 +33,23 @@ public class SudokuBoard {
     private void solve(int j)
     {
         handlePosition();
-        if (x == 9 && y == 9) return;
-        if (immutable[x - 1][y - 1]) y++;
+        if (finished)
+        {
+            return;
+        }
+
+        while (immutable[x - 1][y - 1])
+        {
+            y++;
+            handlePosition();
+        }
+
         for (int numb = 1; numb <=9;numb++)
         {
+            if (finished)
+            {
+                return;
+            }
 
             if (isValid(x,y,numb))
             {
@@ -40,8 +57,34 @@ public class SudokuBoard {
                 solve((y-1));
             }
         }
-        board[x - 1][(y--) - 1] = 0;
-        if (immutable[x - 1][y - 1]) y--;
+
+        if (finished)
+        {
+            return;
+        }
+
+        board[x - 1][(y) - 1] = 0;
+        y--;
+        handlePosition();
+
+        while (immutable[x - 1][y - 1])
+        {
+            y--;
+            handlePosition();
+        }
+
+    }
+
+    public void printBoard()
+    {
+        for(int i = 0; i<9; i++)
+        {
+            for(int h = 0; h<9; h++)
+            {
+                System.out.print(board[i][h] + "|");
+            }
+            System.out.println();
+        }
     }
 
     private void handlePosition()
@@ -55,6 +98,10 @@ public class SudokuBoard {
         {
             x--;
             y = 9;
+        }
+        if (x == 10)
+        {
+            finished = true;
         }
     }
 
