@@ -63,19 +63,61 @@ public class ExactCoverMatrixSudoku {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 constraints[counter++] = B + "" + (i+1) + "" + Hash + "" + (j+1);
+                }
+            }
+
+
+    }
+
+    public boolean isOptionInBox(String option, int numb)
+    {
+        boolean cont = false;
+        String[] temp = mapBoxToRowCol();
+        for (int i = (numb-1)*n; i < (numb-1)*n + n; i++) {
+            String firstHalf = Character.toString(temp[i].charAt(0)) + temp[i].charAt(1);
+            String secondHalf = temp[i].charAt(2) + Character.toString(temp[i].charAt(3));
+            if (option.contains(firstHalf) && option.contains(secondHalf)) cont = true;
+
+        }
+        return cont;
+    }
+
+    public String[] mapBoxToRowCol()
+    {
+        int counter = 0;
+        String[] boxes = new String[n*n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i % Math.sqrt(n) == 0 && j % Math.sqrt(n) == 0)
+                {
+                    for (int k = i ; k < i + Math.sqrt(n); k++) {
+                        for (int l = j ; l < j + Math.sqrt(n); l++) {
+                            boxes[counter++] = R + "" + (k + 1) + "" + C + "" + (l + 1);
+                        }
+                    }
+                }
+
             }
         }
+        return boxes;
     }
 
     public void fillCoverMatrix()
     {
         for (int i = 0; i < options.length; i++) {
-            for (int j = 0; j < constraints.length; j++) {
-                String firstHalf = Character.toString(constraints[j].charAt(0)) + Character.toString(constraints[j].charAt(1));
-                String secondHalf = Character.toString(constraints[j].charAt(2)) + Character.toString(constraints[j].charAt(3));;
+            for (int j = 0; j < constraints.length-(constraints.length/4); j++) {
+                String firstHalf = Character.toString(constraints[j].charAt(0)) + constraints[j].charAt(1);
+                String secondHalf = constraints[j].charAt(2) + Character.toString(constraints[j].charAt(3));
                 if (options[i].contains(firstHalf) && options[i].contains(secondHalf)) coverMatrix[i][j] = 1;
                 else coverMatrix[i][j] = 0;
             }
+            for (int k = constraints.length-(constraints.length/4); k < constraints.length; k++) {
+                int boxNumber = Character.getNumericValue(constraints[k].charAt(1));
+                String secondHalf = constraints[k].charAt(2) + Character.toString(constraints[k].charAt(3));
+                if (isOptionInBox(options[i],boxNumber) && options[i].contains(secondHalf)) coverMatrix[i][k] = 1;
+                else coverMatrix[i][k] = 0;
+            }
+
         }
     }
 
@@ -90,6 +132,9 @@ public class ExactCoverMatrixSudoku {
         //System.out.println(X.options.length);
         //System.out.println(Arrays.toString(X.constraints));
         //System.out.println(X.constraints.length);
+        // System.out.println(Arrays.toString(X.mapBoxToRowCol()));
+        // System.out.println(X.isOptionInBox("R4C1#2", 4));
+
         for (int i = 0; i < X.options.length; i++) {
             for (int j = 0; j < X.constraints.length; j++) {
                 System.out.print(X.coverMatrix[i][j]);
@@ -97,6 +142,8 @@ public class ExactCoverMatrixSudoku {
             }
             System.out.println();
         }
+
+
 
     }
 
