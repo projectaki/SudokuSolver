@@ -3,6 +3,7 @@ public class Main {
     public static void main(String[] args) {
 
         int[][] SUDOKU = new int[9][9];
+        /*
         SUDOKU[0][1] = 3;
         SUDOKU[0][6] = 5;
         SUDOKU[1][1] = 2;
@@ -40,6 +41,29 @@ public class Main {
         SUDOKU[8][4] = 2;
         SUDOKU[8][6] = 7;
 
+
+         */
+        SUDOKU[0][0] = 8;
+        SUDOKU[1][2] = 3;
+        SUDOKU[1][3] = 6;
+        SUDOKU[2][1] = 7;
+        SUDOKU[2][4] = 9;
+        SUDOKU[2][6] = 2;
+        SUDOKU[3][1] = 5;
+        SUDOKU[3][5] = 7;
+        SUDOKU[4][4] = 4;
+        SUDOKU[4][5] = 5;
+        SUDOKU[4][6] = 7;
+        SUDOKU[5][3] = 1;
+        SUDOKU[5][7] = 3;
+        SUDOKU[6][2] = 1;
+        SUDOKU[6][7] = 6;
+        SUDOKU[6][8] = 8;
+        SUDOKU[7][2] = 8;
+        SUDOKU[7][3] = 5;
+        SUDOKU[7][7] = 1;
+        SUDOKU[8][1] = 9;
+        SUDOKU[8][6] = 4;
 
         SudokuBoard sb = new SudokuBoard(SUDOKU);
 
