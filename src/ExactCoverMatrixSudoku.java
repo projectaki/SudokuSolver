@@ -11,8 +11,9 @@ public class ExactCoverMatrixSudoku {
     private final String B = "B";
     private final String Hash = "#";
     private final int[][] coverMatrix;
+    private final int[][] sudokuBoard;
 
-    public ExactCoverMatrixSudoku(int n, int constraintNumber)
+    public ExactCoverMatrixSudoku(int n, int constraintNumber,int[][] grid)
     {
         this.n = n;
         // 4 constraints on sudoku (1 number per cell, 1 of each number/row, 1 of each number/col,1 of each number/box)
@@ -21,12 +22,14 @@ public class ExactCoverMatrixSudoku {
         // therefore it is n*n*numberOfConstraints
         constraints = new String[n*n*constraintNumber];
         // n numbers in every box (nxn boxes) so n*n*n
-        options = new String[n*n*n];
+        options = new String[SudokuBoard.optionSize(grid)];
         // Cover Matrix with filled 1 or 0 values
         coverMatrix = new int[options.length][constraints.length];
+        // Init sudoku board
+        sudokuBoard = grid;
     }
-
-    public void fillOptions()
+/*
+    public void fillOptionsEmptySudoku()
     {
         int counter = 0;
         for (int i = 0; i < n; i++) {
@@ -36,6 +39,25 @@ public class ExactCoverMatrixSudoku {
                 }
             }
         }
+    }
+*/
+    public void fillOptionsBasedOnSudokuBoard()
+    {
+        int counter = 0;
+        for (int p = 0; p < sudokuBoard.length; p++) {
+            for (int s = 0; s < sudokuBoard.length; s++) {
+                if (sudokuBoard[p][s] !=0) options[counter++] =
+                        R +  "" + (p+1) + C + "" + (s+1) + "" + Hash + "" + sudokuBoard[p][s];
+                else
+                {
+                    for (int i = 0; i < n; i++) {
+                        options[counter++] =
+                                R +  "" + (p+1) + C + "" + (s+1) + "" + Hash + "" + (i+1);
+                    }
+                }
+            }
+        }
+
     }
 
     public void fillConstraints()
@@ -122,13 +144,14 @@ public class ExactCoverMatrixSudoku {
     }
 
     public static void main(String[] args) {
-        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(9,4);
+        SudokuBoard boards = new SudokuBoard();
+        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(9,4,boards.hardestBoard());
 
-        X.fillOptions();
+        X.fillOptionsBasedOnSudokuBoard();
         X.fillConstraints();
         X.fillCoverMatrix();
 
-        //System.out.println(Arrays.toString(X.options));
+        System.out.println(Arrays.toString(X.options));
         //System.out.println(X.options.length);
         //System.out.println(Arrays.toString(X.constraints));
         //System.out.println(X.constraints.length);

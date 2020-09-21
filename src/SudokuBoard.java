@@ -1,154 +1,102 @@
-import java.util.Arrays;
-
 public class SudokuBoard {
-    private final int[][] board;
-    private final boolean[][] immutable;
-    private int x;
-    private int y;
-    private boolean finished;
 
-    public SudokuBoard(int[][] init)
+    public SudokuBoard()
     {
-        board = new int[9][9];
-        immutable = new boolean[9][9];
-        finished = false;
-        for (int i = 0; i < 9; i++)
-        {
-            for (int j = 0; j < 9; j++)
-            {
-                board[i][j] = init[i][j];
-                if (init[i][j] != 0) immutable[i][j] = true;
-            }
-        }
-        x = 1;
-        y = 1;
 
     }
 
-    public void solve()
+    public int[][] hardestBoard()
     {
-        solve(y);
+        int[][] SUDOKU;
+        SUDOKU = new int[9][9];
+        SUDOKU[0][0] = 8;
+        SUDOKU[1][2] = 3;
+        SUDOKU[1][3] = 6;
+        SUDOKU[2][1] = 7;
+        SUDOKU[2][4] = 9;
+        SUDOKU[2][6] = 2;
+        SUDOKU[3][1] = 5;
+        SUDOKU[3][5] = 7;
+        SUDOKU[4][4] = 4;
+        SUDOKU[4][5] = 5;
+        SUDOKU[4][6] = 7;
+        SUDOKU[5][3] = 1;
+        SUDOKU[5][7] = 3;
+        SUDOKU[6][2] = 1;
+        SUDOKU[6][7] = 6;
+        SUDOKU[6][8] = 8;
+        SUDOKU[7][2] = 8;
+        SUDOKU[7][3] = 5;
+        SUDOKU[7][7] = 1;
+        SUDOKU[8][1] = 9;
+        SUDOKU[8][6] = 4;
+        return SUDOKU;
     }
 
-    private void solve(int j)
+    public int[][] testBoard()
     {
-        handlePosition();
-        if (finished)
-        {
-            return;
-        }
-
-        while (immutable[x - 1][y - 1])
-        {
-            y++;
-            handlePosition();
-        }
-
-        for (int numb = 1; numb <=9;numb++)
-        {
-            if (finished)
-            {
-                return;
-            }
-
-            if (isValid(x,y,numb))
-            {
-                board[(x)-1][(y++)-1] = numb;
-                solve((y-1));
-            }
-        }
-
-        if (finished)
-        {
-            return;
-        }
-
-        board[x - 1][(y) - 1] = 0;
-        y--;
-        handlePosition();
-
-        while (immutable[x - 1][y - 1])
-        {
-            y--;
-            handlePosition();
-        }
-
+        int[][] SUDOKU;
+        SUDOKU = new int[9][9];
+        SUDOKU[0][1] = 3;
+        SUDOKU[0][6] = 5;
+        SUDOKU[1][1] = 2;
+        SUDOKU[1][2] = 5;
+        SUDOKU[1][3] = 6;
+        SUDOKU[1][5] = 8;
+        SUDOKU[2][3] = 7;
+        SUDOKU[2][5] = 2;
+        SUDOKU[2][6] = 8;
+        SUDOKU[2][7] = 9;
+        SUDOKU[2][8] = 3;
+        SUDOKU[3][3] = 9;
+        SUDOKU[3][4] = 4;
+        SUDOKU[3][5] = 3;
+        SUDOKU[3][6] = 2;
+        SUDOKU[3][8] = 8;
+        SUDOKU[4][0] = 3;
+        SUDOKU[4][2] = 2;
+        SUDOKU[4][6] = 4;
+        SUDOKU[4][8] = 6;
+        SUDOKU[5][0] = 7;
+        SUDOKU[5][3] = 2;
+        SUDOKU[6][0] = 5;
+        SUDOKU[6][1] = 1;
+        SUDOKU[6][3] = 8;
+        SUDOKU[6][4] = 7;
+        SUDOKU[6][5] = 9;
+        SUDOKU[6][6] = 3;
+        SUDOKU[6][7] = 2;
+        SUDOKU[6][8] = 4;
+        SUDOKU[7][1] = 7;
+        SUDOKU[7][3] = 5;
+        SUDOKU[7][7] = 8;
+        SUDOKU[8][0] = 4;
+        SUDOKU[8][4] = 2;
+        SUDOKU[8][6] = 7;
+        return SUDOKU;
     }
 
-    public void printBoard()
+    public static int optionSize(int[][] grid)
     {
-        for(int i = 0; i<9; i++)
-        {
-            for(int h = 0; h<9; h++)
-            {
-                System.out.print(board[i][h] + "|");
+        int size = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid.length; j++) {
+                if (grid[i][j] != 0) size += 1;
+                else size += 9;
+            }
+        }
+        return size;
+    }
+
+    public void printBoard(int[][] grid)
+    {
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid.length; j++) {
+                System.out.print(grid[i][j] + "  ");
+
             }
             System.out.println();
         }
     }
-
-    private void handlePosition()
-    {
-        if (y == 10)
-        {
-            x++;
-            y = 1;
-        }
-        if (y == 0)
-        {
-            x--;
-            y = 9;
-        }
-        if (x == 10)
-        {
-            finished = true;
-        }
-    }
-
-    public boolean isValid(int i, int j, int numb)
-    {
-        return boxSafe(i,j,numb) && rowSafe(i,numb) && colSafe(j,numb);
-    }
-
-    private boolean boxSafe(int i, int j, int numb)
-    {
-        int startI;
-        int startJ;
-        if (i % 3 == 0) startI = ((i/3) - 1)*3;
-        else startI = (i/3) * 3;
-        if (j % 3 == 0) startJ = ((j/3) - 1)*3;
-        else startJ = (j/3) * 3;
-
-        for (int k = startI; k < startI + 3; k++)
-        {
-            for (int l = startJ; l < startJ + 3; l++)
-            {
-                if (board[k][l] == numb) return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean rowSafe(int i, int numb)
-    {
-
-        for (int j = 0; j < 9; j++)
-        {
-            if (board[i - 1][j] == numb) return false;
-        }
-        return true;
-
-    }
-
-    private boolean colSafe(int j, int numb)
-    {
-        for (int i = 0; i < 9; i++)
-        {
-            if (board[i][j - 1] == numb) return false;
-        }
-        return true;
-    }
-
-
 
 }

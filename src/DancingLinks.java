@@ -6,6 +6,7 @@ public class DancingLinks {
         private Node D;
         private Node C;
     }
+
     private class ColumnNode extends Node {
         private int size;
         private String Name;
