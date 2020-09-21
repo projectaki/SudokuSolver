@@ -1,15 +1,80 @@
 public class DancingLinks {
+    private String[] columnNames;
+    ColumnNode h;
+    ColumnNode lastColumnNode;
+
     private class Node {
         private Node L;
         private Node R;
         private Node U;
         private Node D;
         private Node C;
+
+        public Node(Node l, Node r, Node u, Node d, Node c)
+        {
+            L = l;
+            R = r;
+            U = u;
+            D = d;
+            C = c;
+        }
     }
 
-    private class ColumnNode extends Node {
+    private class ColumnNode {
+        private ColumnNode L;
+        private ColumnNode R;
+        private ColumnNode U;
+        private ColumnNode D;
+        private ColumnNode C;
         private int size;
         private String Name;
+
+        public ColumnNode(ColumnNode l, ColumnNode r, ColumnNode u,
+                          ColumnNode d, ColumnNode c, int s, String name)
+        {
+            L = l;
+            R = r;
+            U = u;
+            D = d;
+            C = c;
+            size = s;
+            Name = name;
+        }
+        public ColumnNode()
+        {
+
+        }
+    }
+
+    public DancingLinks(String[] columnNames)
+    {
+        this.columnNames = columnNames;
+        h = new ColumnNode(null,null,null,null,null,0,"");
+        lastColumnNode = new ColumnNode(null,null,null,null,null,0,"");
+
+    }
+
+    public void insertHeader(String name)
+    {
+        ColumnNode x = new ColumnNode();
+        if (h.R == null)
+        {
+            h.R = x;
+            h.L = x;
+            x.L = h;
+            x.R = h;
+
+        }
+        else
+        {
+            lastColumnNode.R = x;
+            x.R = h;
+            h.L = x;
+            x.L = lastColumnNode;
+        }
+        x.Name = name;
+        x.size = 0;
+        lastColumnNode = x;
     }
 
     private int[][] testMatrix()
@@ -61,7 +126,18 @@ public class DancingLinks {
     }
 
     public static void main(String[] args) {
-        DancingLinks dl = new DancingLinks();
+        String[] cn = {"A","B","C","D","E","F","G"};
+        DancingLinks dl = new DancingLinks(cn);
+        for (int i = 0; i < cn.length; i++) {
+            dl.insertHeader(cn[i]);
+        }
+
+        System.out.println(dl.h.L.Name);
+
+
+
+
+        /*
         int[][] test = dl.testMatrix();
         for (int i = 0; i < 6;i++ ) {
             for (int j = 0; j < 7;j++ ) {
@@ -69,6 +145,8 @@ public class DancingLinks {
             }
             System.out.println();
         }
+        */
+
     }
 
 

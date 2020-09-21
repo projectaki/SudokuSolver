@@ -91,7 +91,7 @@ public class ExactCoverMatrixSudoku {
 
     }
 
-    public boolean isOptionInBox(String option, int numb)
+    private boolean isOptionInBox(String option, int numb)
     {
         boolean cont = false;
         String[] temp = mapBoxToRowCol();
@@ -104,7 +104,7 @@ public class ExactCoverMatrixSudoku {
         return cont;
     }
 
-    public String[] mapBoxToRowCol()
+    private String[] mapBoxToRowCol()
     {
         int counter = 0;
         String[] boxes = new String[n*n];
