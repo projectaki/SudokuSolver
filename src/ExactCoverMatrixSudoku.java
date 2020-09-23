@@ -4,8 +4,8 @@ public class ExactCoverMatrixSudoku {
 
     private final int n;
     private final int constraintNumber;
-    private String[] constraints;
-    private String[] options;
+    public String[] constraints;
+    public String[] options;
     private final String R = "R";
     private final String C = "C";
     private final String B = "B";
@@ -22,7 +22,7 @@ public class ExactCoverMatrixSudoku {
         // therefore it is n*n*numberOfConstraints
         constraints = new String[n*n*constraintNumber];
         // n numbers in every box (nxn boxes) so n*n*n
-        options = new String[SudokuBoard.optionSize(grid)];
+        options = new String[SudokuBoard.optionSize(grid,grid.length)];
         // Cover Matrix with filled 1 or 0 values
         coverMatrix = new int[options.length][constraints.length];
         // Init sudoku board
@@ -81,17 +81,18 @@ public class ExactCoverMatrixSudoku {
                 constraints[counter++] = C + "" + (i+1) + "" + Hash + "" + (j+1);
             }
         }
+        /*
         // Box constraint B1#1
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 constraints[counter++] = B + "" + (i+1) + "" + Hash + "" + (j+1);
                 }
             }
-
+*/
 
     }
 
-    private boolean isOptionInBox(String option, int numb)
+    public boolean isOptionInBox(String option, int numb)
     {
         boolean cont = false;
         String[] temp = mapBoxToRowCol();
@@ -124,7 +125,7 @@ public class ExactCoverMatrixSudoku {
         return boxes;
     }
 
-    public void fillCoverMatrix()
+    public void fillCoverMatrix4Constraints()
     {
         for (int i = 0; i < options.length; i++) {
             for (int j = 0; j < constraints.length-(constraints.length/4); j++) {
@@ -143,15 +144,32 @@ public class ExactCoverMatrixSudoku {
         }
     }
 
+    public void fillCoverMatrix3Constraints()
+    {
+        for (int i = 0; i < options.length; i++) {
+            for (int j = 0; j < constraints.length; j++) {
+                String firstHalf = Character.toString(constraints[j].charAt(0)) + constraints[j].charAt(1);
+                String secondHalf = constraints[j].charAt(2) + Character.toString(constraints[j].charAt(3));
+                if (options[i].contains(firstHalf) && options[i].contains(secondHalf)) coverMatrix[i][j] = 1;
+                else coverMatrix[i][j] = 0;
+            }
+
+
+        }
+    }
+
+
+
     public static void main(String[] args) {
         SudokuBoard boards = new SudokuBoard();
-        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(9,4,boards.hardestBoard());
+        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(2,3,boards.smallTestBoard());
 
         X.fillOptionsBasedOnSudokuBoard();
         X.fillConstraints();
-        X.fillCoverMatrix();
+        X.fillCoverMatrix3Constraints();
 
         System.out.println(Arrays.toString(X.options));
+        System.out.println(Arrays.toString(X.constraints));
         //System.out.println(X.options.length);
         //System.out.println(Arrays.toString(X.constraints));
         //System.out.println(X.constraints.length);
