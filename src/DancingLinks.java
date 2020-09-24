@@ -1,8 +1,11 @@
 import java.util.Arrays;
+import java.util.Stack;
 
 public class DancingLinks {
     private final Node[][] NodeMatrix;
     ExactCoverMatrixSudoku exact;
+    private Node h;
+    private Stack<Node> solutionStack;
 
     private class Node {
         private Node L;
@@ -34,6 +37,8 @@ public class DancingLinks {
 
     public DancingLinks()
     {
+        solutionStack = new Stack<>();
+        h = new Node();
         SudokuBoard boards = new SudokuBoard();
         int[][] grid = boards.smallTestBoard();
         exact = new ExactCoverMatrixSudoku(grid.length,3,grid);
@@ -41,7 +46,8 @@ public class DancingLinks {
         exact.fillConstraints();
         NodeMatrix = new Node[exact.options.length + 1][exact.constraints.length];
         fillCoverMatrix3Constraints(exact.constraints);
-        setupLinks();
+        setupLinks(h);
+        search(0);
     }
 
     public int next(int i, int j)
@@ -101,12 +107,16 @@ public class DancingLinks {
         }
     }
 
-    public void setupLinks()
+    public void setupLinks(Node h)
     {
         for (int p = 0;p < exact.constraints.length;p++ ) {
             System.out.println(NodeMatrix[0][p].N);
             setLinks(NodeMatrix[0][p],0,p);
         }
+        NodeMatrix[0][0].L = h;
+        h.R = NodeMatrix[0][0];
+        NodeMatrix[0][exact.constraints.length - 1].R = h;
+        h.L = NodeMatrix[0][exact.constraints.length - 1];
     }
 
     public void fillCoverMatrix3Constraints(String[] constraints)
@@ -159,6 +169,85 @@ public class DancingLinks {
 
     }
 
+    private void cover(Node c)
+    {
+        c.R.L = c.L;
+        c.L.R = c.R;
+
+        Node i = c.D;
+        while (i != c)
+        {
+            Node j = i.R;
+            while (j != i)
+            {
+                j.D.U = j.U;
+                j.U.D = j.D;
+                j.C.S -= 1;
+                j = j.R;
+            }
+            i = i.D;
+        }
+    }
+
+    private void uncover(Node c)
+    {
+        Node i = c.U;
+        while (i != c)
+        {
+            Node j = i.L;
+            while (j != i)
+            {
+                j.C.S += 1;
+                j.D.U = j;
+                j.U.D = j;
+
+                j = j.L;
+            }
+            i = i.U;
+        }
+
+        c.R.L = c;
+        c.L.R = c;
+    }
+
+    private void search(int k)
+    {
+        if (h.R == h)
+        {
+            for (Node x : solutionStack)
+            {
+                System.out.println(x.C.N + x.R.C.N.charAt(2) + x.R.C.N.charAt(3));
+            }
+
+        }
+        else
+        {
+            Node c = h.R;
+            cover(c);
+            Node i = c.D;
+            while (i != c)
+            {
+                solutionStack.add(i);
+                Node j = i.R;
+                while (j != i)
+                {
+                    cover(j.C);
+                    j = j.R;
+                }
+                search(k + 1);
+                i = solutionStack.pop();
+                c = i.C;
+                while (j != i)
+                {
+                    uncover(j.C);
+                    j = j.L;
+                }
+                i = i.D;
+            }
+            uncover(c);
+        }
+    }
+
 
     public static void main(String[] args) {
 
@@ -181,15 +270,7 @@ public class DancingLinks {
         }
 
 
-        System.out.println(dl.NodeMatrix[0][0].R.R.D.D.C.N);
-
-
     }
-
-
-
-
-
 
 
 
