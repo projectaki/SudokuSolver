@@ -41,6 +41,7 @@ public class DancingLinks {
         exact.fillConstraints();
         NodeMatrix = new Node[exact.options.length + 1][exact.constraints.length];
         fillCoverMatrix3Constraints(exact.constraints);
+        setupLinks();
     }
 
     public int next(int i, int j)
@@ -55,10 +56,10 @@ public class DancingLinks {
 
     public int nextCol(int i, int j)
     {
-        int circleI = (i+1) % exact.options.length;
+        int circleI = (i+1) % (exact.options.length + 1);
         while (NodeMatrix[circleI][j] == null)
         {
-            circleI = (circleI+1) % exact.options.length;
+            circleI = (circleI+1) % (exact.options.length + 1);
         }
         return circleI;
     }
@@ -73,7 +74,6 @@ public class DancingLinks {
             Node next = NodeMatrix[i][nextJ];
             x.R = next;
             next.L = x;
-            if(x != NodeMatrix[0][cJ]) x.C = NodeMatrix[0][cJ];
             x = next;
             cJ = nextJ;
         }
@@ -89,10 +89,15 @@ public class DancingLinks {
             Node next = NodeMatrix[nextI][j];
             x.D = next;
             next.U = x;
-            if(x != NodeMatrix[0][j]) x.C = NodeMatrix[0][j];
+            if(next != NodeMatrix[0][j])
+            {
+                next.C = NodeMatrix[0][j];
+                NodeMatrix[0][j].S++;
+            }
             if (x.R == null) setLinkRight(x,cI,j);
             x = next;
             cI = nextI;
+
         }
     }
 
@@ -117,7 +122,11 @@ public class DancingLinks {
                 String firstHalf = Character.toString(exact.constraints[j].charAt(0)) + exact.constraints[j].charAt(1);
                 String secondHalf = exact.constraints[j].charAt(2) + Character.toString(exact.constraints[j].charAt(3));
                 if (exact.options[i - 1].contains(firstHalf) && exact.options[i - 1].contains(secondHalf))
+                {
                     NodeMatrix[i][j] = new Node();
+                    NodeMatrix[i][j].N = Character.toString(exact.constraints[j].charAt(0)) + i;
+                }
+
                 else NodeMatrix[i][j] = null;
             }
         }
@@ -152,18 +161,17 @@ public class DancingLinks {
 
 
     public static void main(String[] args) {
-        SudokuBoard b = new SudokuBoard();
-        ExactCoverMatrixSudoku e = new ExactCoverMatrixSudoku(2,3,b.smallTestBoard());
+
         DancingLinks dl = new DancingLinks();
-        dl.setupLinks();
-        for (int i = 0; i < e.options.length + 1;i++ ) {
-            for (int j = 0; j < e.constraints.length;j++ ) {
+
+        for (int i = 0; i < dl.exact.options.length + 1;i++ ) {
+            for (int j = 0; j < dl.exact.constraints.length;j++ ) {
                 if (i == 0) System.out.print(dl.NodeMatrix[i][j].N +"|");
                 else
                 {
                     if (dl.NodeMatrix[i][j] != null)
                     {
-                        System.out.print("1   |");
+                        System.out.print(dl.NodeMatrix[i][j].N + "  |");
                     }
                     else System.out.print("0   |");
                 }
@@ -171,7 +179,10 @@ public class DancingLinks {
             }
             System.out.println();
         }
-        System.out.println(dl.NodeMatrix[0][0].D.R.U.N);
+
+
+        System.out.println(dl.NodeMatrix[0][0].R.R.D.D.C.N);
+
 
     }
 
