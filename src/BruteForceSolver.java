@@ -149,6 +149,13 @@ public class BruteForceSolver {
         return true;
     }
 
+    public static void main(String[] args) {
+        SudokuBoard sb = new SudokuBoard();
+        BruteForceSolver b = new BruteForceSolver(sb.hardestBoard());
+        b.solve();
+        b.printBoard();
+    }
+
 
 
 }

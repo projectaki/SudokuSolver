@@ -10,7 +10,7 @@ public class ExactCoverMatrixSudoku {
     private final String C = "C";
     private final String B = "B";
     private final String Hash = "#";
-    private final int[][] coverMatrix;
+    public final int[][] coverMatrix;
     private final int[][] sudokuBoard;
 
     public ExactCoverMatrixSudoku(int n, int constraintNumber,int[][] grid)
@@ -92,6 +92,37 @@ public class ExactCoverMatrixSudoku {
 
     }
 
+    public void fill4constraints()
+    {
+        int counter = 0;
+        // Cell constraint R1C1.....
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                constraints[counter++] = R + "" + (i+1) + "" + C + "" + (j+1);
+            }
+        }
+        // Row constraint R1#1
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                constraints[counter++] = R + "" + (i+1) + "" + Hash + "" + (j+1);
+            }
+        }
+        // Col constraint C1#1
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                constraints[counter++] = C + "" + (i+1) + "" + Hash + "" + (j+1);
+            }
+        }
+
+        // Box constraint B1#1
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                constraints[counter++] = B + "" + (i+1) + "" + Hash + "" + (j+1);
+                }
+            }
+
+    }
+
     public boolean isOptionInBox(String option, int numb)
     {
         boolean cont = false;
@@ -162,20 +193,20 @@ public class ExactCoverMatrixSudoku {
 
     public static void main(String[] args) {
         SudokuBoard boards = new SudokuBoard();
-        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(2,3,boards.smallTestBoard());
+        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(9,4,boards.hardestBoard());
 
         X.fillOptionsBasedOnSudokuBoard();
-        X.fillConstraints();
-        X.fillCoverMatrix3Constraints();
+        X.fill4constraints();
+        X.fillCoverMatrix4Constraints();
 
         System.out.println(Arrays.toString(X.options));
         System.out.println(Arrays.toString(X.constraints));
-        //System.out.println(X.options.length);
+        System.out.println(X.options.length);
         //System.out.println(Arrays.toString(X.constraints));
-        //System.out.println(X.constraints.length);
+        System.out.println(X.constraints.length);
         // System.out.println(Arrays.toString(X.mapBoxToRowCol()));
         // System.out.println(X.isOptionInBox("R4C1#2", 4));
-
+/*
         for (int i = 0; i < X.options.length; i++) {
             for (int j = 0; j < X.constraints.length; j++) {
                 System.out.print(X.coverMatrix[i][j]);
@@ -183,7 +214,7 @@ public class ExactCoverMatrixSudoku {
             }
             System.out.println();
         }
-
+*/
 
 
     }
