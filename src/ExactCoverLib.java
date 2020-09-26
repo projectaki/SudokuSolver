@@ -1,6 +1,6 @@
 import java.util.Arrays;
 
-public class ExactCoverMatrixSudoku {
+public class ExactCoverLib {
 
     private final int n;
     private final int constraintNumber;
@@ -13,7 +13,7 @@ public class ExactCoverMatrixSudoku {
     public final int[][] coverMatrix;
     private final int[][] sudokuBoard;
 
-    public ExactCoverMatrixSudoku(int n, int constraintNumber,int[][] grid)
+    public ExactCoverLib(int n, int constraintNumber, int[][] grid)
     {
         this.n = n;
         // 4 constraints on sudoku (1 number per cell, 1 of each number/row, 1 of each number/col,1 of each number/box)
@@ -193,7 +193,7 @@ public class ExactCoverMatrixSudoku {
 
     public static void main(String[] args) {
         SudokuBoard boards = new SudokuBoard();
-        ExactCoverMatrixSudoku X = new ExactCoverMatrixSudoku(9,4,boards.hardestBoard());
+        ExactCoverLib X = new ExactCoverLib(9,4,boards.hardestBoard());
 
         X.fillOptionsBasedOnSudokuBoard();
         X.fill4constraints();

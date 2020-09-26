@@ -1,11 +1,18 @@
 import java.util.Stack;
 
 public class DancingLinks {
+    //  Matrix to hold the Nodes
     private final Node[][] NodeMatrix;
-    ExactCoverMatrixSudoku exact;
+    // External library for constraints, options
+    private final ExactCoverLib lib;
+    // Main header Node to start the search
     private final Node h;
+    // Stack for holding a solution
     private final Stack<Node> solutionStack;
+    // Sudoku board with clues
     private final int[][] board;
+    // Number of constraints
+    private final int constraintNumber;
 
     private static class Node {
         private Node L;
@@ -28,16 +35,18 @@ public class DancingLinks {
     {
         solutionStack = new Stack<>();
         h = new Node();
+        constraintNumber = 4;
         this.board = board;
-        exact = new ExactCoverMatrixSudoku(this.board.length,4,this.board);
-        exact.fillOptionsBasedOnSudokuBoard();
-        exact.fill4constraints();
-        NodeMatrix = new Node[exact.options.length + 1][exact.constraints.length];
-        fillMatrix(exact.constraints);
+        lib = new ExactCoverLib(this.board.length,constraintNumber,this.board);
+        lib.fillOptionsBasedOnSudokuBoard();
+        lib.fill4constraints();
+        NodeMatrix = new Node[lib.options.length + 1][lib.constraints.length];
+        fillMatrix(lib.constraints);
         setupLinks(h);
         search();
     }
 /*
+// For testing on 2x2 sudoku board with 3 cosntraints on cell,row,col without box constraint
     private void testDLX()
     {
         SudokuBoard boards = new SudokuBoard();
@@ -51,11 +60,12 @@ public class DancingLinks {
         search();
     }
 */
-
+    // helper method for getting the solutions into the sudoku board
+    // (takes a concat string and extracts the values for Row,Col and Val
     private int[] convertResultStringToBoardValues(String concatResult)
     {
         int[] numbs = new int[3];
-        for (int i = 0; i <(4*4) - 1;i++)
+        for (int i = 0; i <(constraintNumber*4) - 1;i++)
         {
 
             int temp = Character.getNumericValue(concatResult.charAt(i+1));
@@ -76,27 +86,31 @@ public class DancingLinks {
         }
         return numbs;
     }
-
+    // helper method for setting up links
+    // returns the "j" of the next available Node in the matrix row i
     private int next(int i, int j)
     {
-        int circleJ = (j+1) % exact.constraints.length;
+        int circleJ = (j+1) % lib.constraints.length;
         while (NodeMatrix[i][circleJ] == null)
         {
-            circleJ = (circleJ+1) % exact.constraints.length;
+            circleJ = (circleJ+1) % lib.constraints.length;
         }
         return circleJ;
     }
 
+    // helper method for setting up links
+    // returns the "i" of the next available Node in the matrix col j
     private int nextCol(int i, int j)
     {
-        int circleI = (i+1) % (exact.options.length + 1);
+        int circleI = (i+1) % (lib.options.length + 1);
         while (NodeMatrix[circleI][j] == null)
         {
-            circleI = (circleI+1) % (exact.options.length + 1);
+            circleI = (circleI+1) % (lib.options.length + 1);
         }
         return circleI;
     }
 
+    // given a start Node and the Nodes i,j in Matrix => set up the circular double links in that row
     private void setLinkRight(Node start, int i, int j)
     {
         Node x = NodeMatrix[i][j];
@@ -111,7 +125,8 @@ public class DancingLinks {
             cJ = nextJ;
         }
     }
-
+    // Given a start Node and the j value in Matrix => set up circular double links in column
+    // and if there is no links in the current Nodes row => also set up links for that row
     private void setLinks(Node start, int j)
     {
         Node x = NodeMatrix[0][j];
@@ -134,18 +149,21 @@ public class DancingLinks {
         }
     }
 
+    // Starting at the Initial Node (Matrix[0][0]), go through all column headers and set up links for the whole matrix
+    // After links are set up also add the Node h
     private void setupLinks(Node h)
     {
-        for (int p = 0;p < exact.constraints.length;p++ ) {
+        for (int p = 0; p < lib.constraints.length; p++ ) {
             // System.out.println(NodeMatrix[0][p].N);
             setLinks(NodeMatrix[0][p], p);
         }
         NodeMatrix[0][0].L = h;
         h.R = NodeMatrix[0][0];
-        NodeMatrix[0][exact.constraints.length - 1].R = h;
-        h.L = NodeMatrix[0][exact.constraints.length - 1];
+        NodeMatrix[0][lib.constraints.length - 1].R = h;
+        h.L = NodeMatrix[0][lib.constraints.length - 1];
     }
 /*
+    // test method for filling Matrix with only 3 constraints for 2x2 board
     public void fillCoverMatrix3Constraints(String[] constraints)
     {
         for(int z = 0;z < constraints.length;z++)
@@ -169,6 +187,11 @@ public class DancingLinks {
         }
     }
 */
+    // Compare the options against contraints and fill out the intersections of options and constraints
+    // if its the first row (z=0) => set the Names of the Nodes to the constraint names as these are the headers
+    // for the 3/4 of the constraints we can directly compare the option against cosntraints and fill intersection
+    // for the last 1/4 (box constraints) we have to use a helper method (isOptionInBox) to see if the intersection exists
+    // that is because we cant directly compare eg: "R1C1" to "B1", the helper method disects B1 to R1C1-R3C3 etc..
     private void fillMatrix(String[] constraints)
     {
             for(int z = 0;z < constraints.length;z++)
@@ -177,24 +200,24 @@ public class DancingLinks {
                 NodeMatrix[0][z].N = constraints[z];
             }
 
-            for (int i = 1; i < exact.options.length + 1; i++) {
-                for (int j = 0; j < exact.constraints.length-(exact.constraints.length/4); j++) {
-                    String firstHalf = Character.toString(exact.constraints[j].charAt(0)) + exact.constraints[j].charAt(1);
-                    String secondHalf = exact.constraints[j].charAt(2) + Character.toString(exact.constraints[j].charAt(3));
-                    if (exact.options[i - 1].contains(firstHalf) && exact.options[i - 1].contains(secondHalf))
+            for (int i = 1; i < lib.options.length + 1; i++) {
+                for (int j = 0; j < lib.constraints.length-(lib.constraints.length/4); j++) {
+                    String firstHalf = Character.toString(lib.constraints[j].charAt(0)) + lib.constraints[j].charAt(1);
+                    String secondHalf = lib.constraints[j].charAt(2) + Character.toString(lib.constraints[j].charAt(3));
+                    if (lib.options[i - 1].contains(firstHalf) && lib.options[i - 1].contains(secondHalf))
                     {
                         NodeMatrix[i][j] = new Node();
-                        NodeMatrix[i][j].N = Character.toString(exact.constraints[j].charAt(0)) + i;
+                        NodeMatrix[i][j].N = Character.toString(lib.constraints[j].charAt(0)) + i;
                     }
                     else NodeMatrix[i][j] = null;
                 }
-                for (int k = exact.constraints.length-(exact.constraints.length/4); k < exact.constraints.length; k++) {
-                    int boxNumber = Character.getNumericValue(exact.constraints[k].charAt(1));
-                    String secondHalf = exact.constraints[k].charAt(2) + Character.toString(exact.constraints[k].charAt(3));
-                    if (exact.isOptionInBox(exact.options[i - 1],boxNumber) && exact.options[i - 1].contains(secondHalf))
+                for (int k = lib.constraints.length-(lib.constraints.length/4); k < lib.constraints.length; k++) {
+                    int boxNumber = Character.getNumericValue(lib.constraints[k].charAt(1));
+                    String secondHalf = lib.constraints[k].charAt(2) + Character.toString(lib.constraints[k].charAt(3));
+                    if (lib.isOptionInBox(lib.options[i - 1],boxNumber) && lib.options[i - 1].contains(secondHalf))
                     {
                         NodeMatrix[i][k] = new Node();
-                        NodeMatrix[i][k].N = Character.toString(exact.constraints[k].charAt(0)) + i;
+                        NodeMatrix[i][k].N = Character.toString(lib.constraints[k].charAt(0)) + i;
                     }
                     else NodeMatrix[i][k] = null;
                 }
@@ -204,6 +227,8 @@ public class DancingLinks {
 
     }
 
+    // DLX method for covering a column (from Knuth's paper)
+    // removes the given column and also removes the Nodes in given column from other columns
     private void cover(Node c)
     {
         // System.out.println("cover");
@@ -225,6 +250,8 @@ public class DancingLinks {
         }
     }
 
+    // Uncover method (from Knuth's paper), exact reverse of cover method
+    // Resets the nodes in other columns and then resets the column
     private void uncover(Node c)
     {
         // System.out.println("uncover");
@@ -247,6 +274,7 @@ public class DancingLinks {
         c.L.R = c;
     }
 
+    // Heuristic method for choosing the column with least amount of nodecount
     private Node chooseColumn()
     {
         Node c = h.R;
@@ -264,6 +292,8 @@ public class DancingLinks {
         return c;
     }
 
+    // Search method for exact cover (Knuth's paper) if Node h right link is itself(all columns removed) we have solution
+    // Else recursivley cover/uncover columns (backtracking) if we cant move further with solution
     private void search()
     {
 
@@ -311,10 +341,11 @@ public class DancingLinks {
         }
     }
 
+    // method for printing the NodeMatrix (compare to normal Matrix)
     private void printNodeMatrix()
     {
-        for (int i = 0; i < exact.options.length + 1;i++ ) {
-            for (int j = 0; j < exact.constraints.length;j++ ) {
+        for (int i = 0; i < lib.options.length + 1; i++ ) {
+            for (int j = 0; j < lib.constraints.length; j++ ) {
                 if (i == 0) System.out.print(NodeMatrix[i][j].N +"|");
                 else
                 {
