@@ -1,10 +1,12 @@
 public class SudokuBoard {
 
+    // Class for initialising test sudoku boards
     public SudokuBoard()
     {
 
     }
 
+    // 2x2 test board
     public int[][] smallTestBoard()
     {
         int[][] SUDOKU;
@@ -14,6 +16,7 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
+    // hardest 9x9 sudoku board
     public int[][] hardestBoard()
     {
         int[][] SUDOKU;
@@ -42,6 +45,7 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
+    // random sudoku board
     public int[][] testBoard()
     {
         int[][] SUDOKU;
@@ -85,18 +89,8 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
-    public static int optionSize(int[][] grid, int n)
-    {
-        int size = 0;
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid.length; j++) {
-                if (grid[i][j] != 0) size += 1;
-                else size += n;
-            }
-        }
-        return size;
-    }
 
+    // print a sudoku board
     public void printBoard(int[][] grid)
     {
         for (int i = 0; i < grid.length; i++) {
@@ -109,10 +103,8 @@ public class SudokuBoard {
     }
 
     public static void main(String[] args) {
-        SudokuBoard sb = new SudokuBoard();
-        sb.printBoard(sb.smallTestBoard());
-        System.out.println(sb.smallTestBoard().length);
-        System.out.println(optionSize(sb.smallTestBoard(),sb.smallTestBoard().length));
+
+
     }
 
 }

@@ -22,7 +22,7 @@ public class ExactCoverLib {
         // therefore it is n*n*numberOfConstraints
         constraints = new String[n*n*constraintNumber];
         // n numbers in every box (nxn boxes) so n*n*n
-        options = new String[SudokuBoard.optionSize(grid,grid.length)];
+        options = new String[optionSize(grid,grid.length)];
         // Cover Matrix with filled 1 or 0 values
         coverMatrix = new int[options.length][constraints.length];
         // Init sudoku board
@@ -41,6 +41,19 @@ public class ExactCoverLib {
         }
     }
 */
+public static int optionSize(int[][] grid, int n)
+{
+    int size = 0;
+    for (int i = 0; i < grid.length; i++) {
+        for (int j = 0; j < grid.length; j++) {
+            if (grid[i][j] != 0) size += 1;
+            else size += n;
+        }
+    }
+    return size;
+}
+
+    // Options array of all the possible options for numbers in cells, with having only one option for already filled cells
     public void fillOptionsBasedOnSudokuBoard()
     {
         int counter = 0;
@@ -60,6 +73,7 @@ public class ExactCoverLib {
 
     }
 
+    // Fill the constraints array with the constraints for cell, row and col
     public void fillConstraints()
     {
         int counter = 0;
@@ -92,6 +106,7 @@ public class ExactCoverLib {
 
     }
 
+    // fill the constraints array with constraints for cell, row, col and box
     public void fill4constraints()
     {
         int counter = 0;
@@ -123,6 +138,7 @@ public class ExactCoverLib {
 
     }
 
+    // helper method for deciding weather a given option is in a given boxnumber
     public boolean isOptionInBox(String option, int numb)
     {
         boolean cont = false;
@@ -136,6 +152,7 @@ public class ExactCoverLib {
         return cont;
     }
 
+    // helper method for mapping a box to its row, col equivalents
     private String[] mapBoxToRowCol()
     {
         int counter = 0;
@@ -156,6 +173,7 @@ public class ExactCoverLib {
         return boxes;
     }
 
+    // Fill cover matrix for 0s and 1s based on options and constraints
     public void fillCoverMatrix4Constraints()
     {
         for (int i = 0; i < options.length; i++) {
@@ -175,6 +193,7 @@ public class ExactCoverLib {
         }
     }
 
+    // fill matrix for 2x2 sudoku test board which has only 3 constraints
     public void fillCoverMatrix3Constraints()
     {
         for (int i = 0; i < options.length; i++) {
