@@ -1,12 +1,12 @@
 import java.util.Stack;
 
-public class DancingLinks {
+public class DancingLinksLib {
     //  Matrix to hold the Nodes
     private final Node[][] NodeMatrix;
     // External library for constraints, options
     private final ExactCoverLib lib;
     // Main header Node to start the search
-    private final Node h;
+    private final ColumnNode h;
     // Stack for holding a solution
     private final Stack<Node> solutionStack;
     // Sudoku board with clues
@@ -15,26 +15,31 @@ public class DancingLinks {
     private final int constraintNumber;
 
     private static class Node {
-        private Node L;
-        private Node R;
-        private Node U;
-        private Node D;
-        private Node C;
-        private String N;
-        private int S;
-
+        protected Node L;
+        protected Node R;
+        protected Node U;
+        protected Node D;
+        protected ColumnNode C;
 
         public Node() {
 
         }
     }
 
+    private static class ColumnNode extends Node {
+        private String N;
+        private int S;
 
+        public ColumnNode()
+        {
 
-    public DancingLinks(int[][] board)
+        }
+    }
+
+    public DancingLinksLib(int[][] board)
     {
         solutionStack = new Stack<>();
-        h = new Node();
+        h = new ColumnNode();
         constraintNumber = 4;
         this.board = board;
         lib = new ExactCoverLib(this.board.length,constraintNumber,this.board);
@@ -42,7 +47,11 @@ public class DancingLinks {
         lib.fill4constraints();
         NodeMatrix = new Node[lib.options.length + 1][lib.constraints.length];
         fillMatrix(lib.constraints);
-        setupLinks(h);
+        setupLinks();
+    }
+
+    private void DLX()
+    {
         search();
     }
 /*
@@ -139,8 +148,8 @@ public class DancingLinks {
             next.U = x;
             if(next != NodeMatrix[0][j])
             {
-                next.C = NodeMatrix[0][j];
-                NodeMatrix[0][j].S++;
+                next.C = (ColumnNode) NodeMatrix[0][j];
+                next.C.S++;
             }
             if (x.R == null) setLinkRight(x,cI,j);
             x = next;
@@ -151,7 +160,7 @@ public class DancingLinks {
 
     // Starting at the Initial Node (Matrix[0][0]), go through all column headers and set up links for the whole matrix
     // After links are set up also add the Node h
-    private void setupLinks(Node h)
+    private void setupLinks()
     {
         for (int p = 0; p < lib.constraints.length; p++ ) {
             // System.out.println(NodeMatrix[0][p].N);
@@ -196,8 +205,9 @@ public class DancingLinks {
     {
             for(int z = 0;z < constraints.length;z++)
             {
-                NodeMatrix[0][z] = new Node();
-                NodeMatrix[0][z].N = constraints[z];
+                NodeMatrix[0][z] = new ColumnNode();
+                ColumnNode cn = (ColumnNode)NodeMatrix[0][z];
+                cn.N = constraints[z];
             }
 
             for (int i = 1; i < lib.options.length + 1; i++) {
@@ -207,7 +217,6 @@ public class DancingLinks {
                     if (lib.options[i - 1].contains(firstHalf) && lib.options[i - 1].contains(secondHalf))
                     {
                         NodeMatrix[i][j] = new Node();
-                        NodeMatrix[i][j].N = Character.toString(lib.constraints[j].charAt(0)) + i;
                     }
                     else NodeMatrix[i][j] = null;
                 }
@@ -217,7 +226,6 @@ public class DancingLinks {
                     if (lib.isOptionInBox(lib.options[i - 1],boxNumber) && lib.options[i - 1].contains(secondHalf))
                     {
                         NodeMatrix[i][k] = new Node();
-                        NodeMatrix[i][k].N = Character.toString(lib.constraints[k].charAt(0)) + i;
                     }
                     else NodeMatrix[i][k] = null;
                 }
@@ -277,8 +285,8 @@ public class DancingLinks {
     // Heuristic method for choosing the column with least amount of nodecount
     private Node chooseColumn()
     {
-        Node c = h.R;
-        Node j = h.R;
+        ColumnNode c = (ColumnNode)h.R;
+        ColumnNode j = (ColumnNode)h.R;
         double s = Double.POSITIVE_INFINITY;
         while (j != h)
         {
@@ -287,7 +295,7 @@ public class DancingLinks {
                 c = j;
                 s = j.S;
             }
-            j = j.R;
+            j = (ColumnNode) j.R;
         }
         return c;
     }
@@ -342,30 +350,15 @@ public class DancingLinks {
     }
 
     // method for printing the NodeMatrix (compare to normal Matrix)
-    private void printNodeMatrix()
-    {
-        for (int i = 0; i < lib.options.length + 1; i++ ) {
-            for (int j = 0; j < lib.constraints.length; j++ ) {
-                if (i == 0) System.out.print(NodeMatrix[i][j].N +"|");
-                else
-                {
-                    if (NodeMatrix[i][j] != null)
-                    {
-                        System.out.print(NodeMatrix[i][j].N + "  |");
-                    }
-                    else System.out.print("0   |");
-                }
-
-            }
-            System.out.println();
-        }
-    }
-
 
     public static void main(String[] args) {
 
         SudokuBoard boards = new SudokuBoard();
-        DancingLinks dl = new DancingLinks(boards.hardestBoard());
+        DancingLinksLib dl = new DancingLinksLib(boards.hardestBoard());
+        long startTime = System.currentTimeMillis();
+        dl.DLX();
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime-startTime) + "ms");
         boards.printBoard(dl.board);
 
 

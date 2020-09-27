@@ -151,8 +151,11 @@ public class BruteForceSolver {
 
     public static void main(String[] args) {
         SudokuBoard sb = new SudokuBoard();
+        long startTime = System.currentTimeMillis();
         BruteForceSolver b = new BruteForceSolver(sb.hardestBoard());
         b.solve();
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime-startTime) + "ms");
         b.printBoard();
     }
 
