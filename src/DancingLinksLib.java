@@ -2,17 +2,13 @@ import java.util.Stack;
 
 public class DancingLinksLib {
     //  Matrix to hold the Nodes
-    private final Node[][] NodeMatrix;
+    private Node[][] NodeMatrix;
     // External library for constraints, options
-    private final ExactCoverLib lib;
+    private ExactCoverLib lib;
     // Main header Node to start the search
     private final ColumnNode h;
     // Stack for holding a solution
     private final Stack<Node> solutionStack;
-    // Sudoku board with clues
-    private final int[][] board;
-    // Number of constraints
-    private final int constraintNumber;
 
     private static class Node {
         protected Node L;
@@ -36,22 +32,27 @@ public class DancingLinksLib {
         }
     }
 
-    public DancingLinksLib(int[][] board)
+    public DancingLinksLib()
     {
         solutionStack = new Stack<>();
         h = new ColumnNode();
-        constraintNumber = 4;
-        this.board = board;
-        lib = new ExactCoverLib(this.board.length,constraintNumber,this.board);
-        lib.fillOptionsBasedOnSudokuBoard();
-        lib.fill4constraints();
-        NodeMatrix = new Node[lib.options.length + 1][lib.constraints.length];
-        fillMatrix(lib.constraints);
-        setupLinks();
     }
 
-    private void DLX()
+    private int[][] setUp(int[][] board)
     {
+        this.lib = new ExactCoverLib(9,4,board);
+        lib.fillOptionsBasedOnSudokuBoard();
+        lib.fill4constraints();
+        lib.fillCoverMatrix4Constraints();
+        NodeMatrix = new Node[lib.options.length + 1][lib.constraints.length];
+        return lib.coverMatrix;
+    }
+
+
+    private void DLX(int[][] matrix,String[] constraintNames)
+    {
+        fillMatrix(constraintNames,matrix);
+        setupLinks();
         search();
     }
 /*
@@ -74,7 +75,7 @@ public class DancingLinksLib {
     private int[] convertResultStringToBoardValues(String concatResult)
     {
         int[] numbs = new int[3];
-        for (int i = 0; i <(constraintNumber*4) - 1;i++)
+        for (int i = 0; i <(4*4) - 1;i++)
         {
 
             int temp = Character.getNumericValue(concatResult.charAt(i+1));
@@ -201,39 +202,21 @@ public class DancingLinksLib {
     // for the 3/4 of the constraints we can directly compare the option against cosntraints and fill intersection
     // for the last 1/4 (box constraints) we have to use a helper method (isOptionInBox) to see if the intersection exists
     // that is because we cant directly compare eg: "R1C1" to "B1", the helper method disects B1 to R1C1-R3C3 etc..
-    private void fillMatrix(String[] constraints)
-    {
-            for(int z = 0;z < constraints.length;z++)
-            {
-                NodeMatrix[0][z] = new ColumnNode();
-                ColumnNode cn = (ColumnNode)NodeMatrix[0][z];
-                cn.N = constraints[z];
+    private void fillMatrix(String[] constraints,int[][] matrix) {
+        for (int z = 0; z < constraints.length; z++) {
+            NodeMatrix[0][z] = new ColumnNode();
+            ColumnNode cn = (ColumnNode) NodeMatrix[0][z];
+            cn.N = constraints[z];
+        }
+
+        for (int i = 1; i < lib.options.length + 1; i++) {
+            for (int j = 0; j < lib.constraints.length; j++) {
+                if (matrix[i - 1][j] == 1) NodeMatrix[i][j] = new Node();
             }
 
-            for (int i = 1; i < lib.options.length + 1; i++) {
-                for (int j = 0; j < lib.constraints.length-(lib.constraints.length/4); j++) {
-                    String firstHalf = Character.toString(lib.constraints[j].charAt(0)) + lib.constraints[j].charAt(1);
-                    String secondHalf = lib.constraints[j].charAt(2) + Character.toString(lib.constraints[j].charAt(3));
-                    if (lib.options[i - 1].contains(firstHalf) && lib.options[i - 1].contains(secondHalf))
-                    {
-                        NodeMatrix[i][j] = new Node();
-                    }
-                    else NodeMatrix[i][j] = null;
-                }
-                for (int k = lib.constraints.length-(lib.constraints.length/4); k < lib.constraints.length; k++) {
-                    int boxNumber = Character.getNumericValue(lib.constraints[k].charAt(1));
-                    String secondHalf = lib.constraints[k].charAt(2) + Character.toString(lib.constraints[k].charAt(3));
-                    if (lib.isOptionInBox(lib.options[i - 1],boxNumber) && lib.options[i - 1].contains(secondHalf))
-                    {
-                        NodeMatrix[i][k] = new Node();
-                    }
-                    else NodeMatrix[i][k] = null;
-                }
-
-            }
-
-
+        }
     }
+
 
     // DLX method for covering a column (from Knuth's paper)
     // removes the given column and also removes the Nodes in given column from other columns
@@ -307,17 +290,18 @@ public class DancingLinksLib {
 
         if (h.R == h)
         {
-            //SudokuBoard sb = new SudokuBoard();
-            //int[][] board = new int[this.board.length][this.board.length];
+
+            SudokuBoard sb = new SudokuBoard();
+            int[][] board = new int[9][9];
             for (Node x : solutionStack)
             {
                 String concat = x.C.N + x.R.C.N + x.R.R.C.N + x.R.R.R.C.N;
                 int[] temp = convertResultStringToBoardValues(concat);
                 // System.out.println(counter++ + " " + x.C.N +  " " + x.R.C.N + " " + x.R.R.C.N +" " + x.R.R.R.C.N);
-                this.board[temp[0] - 1][temp[1] - 1] = temp[2];
+                board[temp[0] - 1][temp[1] - 1] = temp[2];
 
             }
-
+            sb.printBoard(board);
 
         }
         else
@@ -354,12 +338,12 @@ public class DancingLinksLib {
     public static void main(String[] args) {
 
         SudokuBoard boards = new SudokuBoard();
-        DancingLinksLib dl = new DancingLinksLib(boards.hardestBoard());
+        DancingLinksLib dl = new DancingLinksLib();
+        dl.setUp(boards.hardestBoard());
         long startTime = System.currentTimeMillis();
-        dl.DLX();
+        dl.DLX(dl.lib.coverMatrix,dl.lib.constraints);
         long endTime = System.currentTimeMillis();
         System.out.println("Total execution time: " + (endTime-startTime) + "ms");
-        boards.printBoard(dl.board);
 
 
 
