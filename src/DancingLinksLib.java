@@ -18,7 +18,10 @@ public class DancingLinksLib {
         protected ColumnNode C;
 
         public Node() {
-
+            L = this;
+            R = this;
+            U = this;
+            D = this;
         }
     }
 
@@ -29,6 +32,11 @@ public class DancingLinksLib {
         public ColumnNode()
         {
 
+        }
+
+        public ColumnNode(String name)
+        {
+            N = name;
         }
     }
 
@@ -51,8 +59,7 @@ public class DancingLinksLib {
 
     private void DLX(int[][] matrix,String[] constraintNames)
     {
-        fillMatrix(constraintNames,matrix);
-        setupLinks();
+        fillMatrix(matrix, constraintNames);
         search();
     }
 /*
@@ -202,18 +209,41 @@ public class DancingLinksLib {
     // for the 3/4 of the constraints we can directly compare the option against cosntraints and fill intersection
     // for the last 1/4 (box constraints) we have to use a helper method (isOptionInBox) to see if the intersection exists
     // that is because we cant directly compare eg: "R1C1" to "B1", the helper method disects B1 to R1C1-R3C3 etc..
-    private void fillMatrix(String[] constraints,int[][] matrix) {
-        for (int z = 0; z < constraints.length; z++) {
-            NodeMatrix[0][z] = new ColumnNode();
-            ColumnNode cn = (ColumnNode) NodeMatrix[0][z];
-            cn.N = constraints[z];
+    private void fillMatrix(int[][] matrix, String[] constraints) {
+        ColumnNode[] columns = new ColumnNode[constraints.length];
+        ColumnNode last = h;
+        for (int i = 0; i < constraints.length; i++) {
+            ColumnNode x = new ColumnNode(constraints[i]);
+            x.L = last;
+            x.R = last.R;
+            last.R.L = x;
+            last.R = x;
+            last = x;
+            columns[i] = x;
         }
 
-        for (int i = 1; i < lib.options.length + 1; i++) {
-            for (int j = 0; j < lib.constraints.length; j++) {
-                if (matrix[i - 1][j] == 1) NodeMatrix[i][j] = new Node();
-            }
+        for (int j = 0; j < matrix.length;j++ ) {
+            Node lastNode = null;
+            for (int k = 0; k < matrix[0].length; k++) {
+                if (matrix[j][k] == 1)
+                {
+                    Node x = new Node();
+                    ColumnNode col = columns[k];
+                    x.U = col.U;
+                    x.D = col;
+                    col.U.D = x;
+                    col.U = x;
+                    x.C = col;
+                    col.S++;
 
+                    if (lastNode == null) lastNode = x;
+                    x.L = lastNode;
+                    x.R = lastNode.R;
+                    lastNode.R.L = x;
+                    lastNode.R = x;
+                    lastNode = x;
+                }
+            }
         }
     }
 
@@ -290,7 +320,7 @@ public class DancingLinksLib {
 
         if (h.R == h)
         {
-
+/*
             SudokuBoard sb = new SudokuBoard();
             int[][] board = new int[9][9];
             for (Node x : solutionStack)
@@ -302,7 +332,7 @@ public class DancingLinksLib {
 
             }
             sb.printBoard(board);
-
+*/
         }
         else
         {
@@ -340,8 +370,10 @@ public class DancingLinksLib {
         SudokuBoard boards = new SudokuBoard();
         DancingLinksLib dl = new DancingLinksLib();
         dl.setUp(boards.hardestBoard());
+        int[][] matrix = dl.lib.coverMatrix;
+        String[] consts = dl.lib.constraints;
         long startTime = System.currentTimeMillis();
-        dl.DLX(dl.lib.coverMatrix,dl.lib.constraints);
+        dl.DLX(matrix,consts);
         long endTime = System.currentTimeMillis();
         System.out.println("Total execution time: " + (endTime-startTime) + "ms");
 
