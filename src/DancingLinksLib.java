@@ -196,7 +196,7 @@ public class DancingLinksLib {
 
         if (h.R == h)
         {
-/*
+
             SudokuBoard sb = new SudokuBoard();
             int[][] board = new int[9][9];
             for (Node x : solutionStack)
@@ -208,7 +208,7 @@ public class DancingLinksLib {
 
             }
             sb.printBoard(board);
-*/
+
         }
         else
         {
