@@ -2,7 +2,7 @@ import java.util.Stack;
 
 public class DancingLinksLib {
     // External library for constraints, options
-    private ExactCoverLib lib;
+    private final ExactCoverEfficient eCover;
     // Main header Node to start the search
     private final ColumnNode h;
     // Stack for holding a solution
@@ -38,60 +38,29 @@ public class DancingLinksLib {
         }
     }
 
-    public DancingLinksLib()
+    public DancingLinksLib(int N, int constraintNumber, int[][] board)
     {
         solutionStack = new Stack<>();
         h = new ColumnNode();
+        eCover = new ExactCoverEfficient(N,constraintNumber,board);
+        eCover.fillGrid();
     }
 
-    private int[][] setUp(int[][] board)
+    private void DLX(int[][] matrix)
     {
-        this.lib = new ExactCoverLib(9,4,board);
-        lib.fillOptionsBasedOnSudokuBoard();
-        lib.fill4constraints();
-        lib.fillCoverMatrix4Constraints();
-        return lib.coverMatrix;
-    }
-
-
-    private void DLX(int[][] matrix,String[] constraintNames)
-    {
-        coverMatrixToLinkedList(matrix, constraintNames);
+        coverMatrixToLinkedList(matrix);
         search();
     }
 
     // helper method for getting the solutions into the sudoku board
     // (takes a concat string and extracts the values for Row,Col and Val
-    private int[] convertResultStringToBoardValues(String concatResult)
-    {
-        int[] numbs = new int[3];
-        for (int i = 0; i <(4*4) - 1;i++)
-        {
-
-            int temp = Character.getNumericValue(concatResult.charAt(i+1));
 
 
-            if (Character.toString(concatResult.charAt(i)).equals("R"))
-            {
-                numbs[0] = temp;
-            }
-            else if (Character.toString(concatResult.charAt(i)).equals("C"))
-            {
-                numbs[1] = temp;
-            }
-            else if (Character.toString(concatResult.charAt(i)).equals("#"))
-            {
-                numbs[2] = temp;
-            }
-        }
-        return numbs;
-    }
+    private void coverMatrixToLinkedList(int[][] matrix) {
+        ColumnNode[] columns = new ColumnNode[eCover.grid[0].length];
 
-    private void coverMatrixToLinkedList(int[][] matrix, String[] constraints) {
-        ColumnNode[] columns = new ColumnNode[constraints.length];
-
-        for (int i = 0; i < constraints.length; i++) {
-            ColumnNode x = new ColumnNode(constraints[i]);
+        for (int i = 0; i < columns.length; i++) {
+            ColumnNode x = new ColumnNode(i +"");
             x.L = h.L;
             x.R = h;
             h.L.R = x;
@@ -201,10 +170,35 @@ public class DancingLinksLib {
             int[][] board = new int[9][9];
             for (Node x : solutionStack)
             {
-                String concat = x.C.N + x.R.C.N + x.R.R.C.N + x.R.R.R.C.N;
-                int[] temp = convertResultStringToBoardValues(concat);
-                // System.out.println(counter++ + " " + x.C.N +  " " + x.R.C.N + " " + x.R.R.C.N +" " + x.R.R.R.C.N);
-                board[temp[0] - 1][temp[1] - 1] = temp[2];
+                Node n = x;
+                int i=0;
+                int j=0;
+                int val=0;
+                //System.out.print(x.C.N + " ");
+                if (eCover.isFirstSet(Integer.parseInt(x.C.N)))
+                {
+                    i = eCover.getFirstNumberConstraint(Integer.parseInt(x.C.N));
+                    j = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
+                }
+
+                if(eCover.isSecondSet(Integer.parseInt(x.C.N))) val = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
+                x = x.R;
+                while (n != x)
+                {
+                    if (eCover.isFirstSet(Integer.parseInt(x.C.N)))
+                    {
+                        i = eCover.getFirstNumberConstraint(Integer.parseInt(x.C.N));
+                        j = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
+                    }
+
+                    if(eCover.isSecondSet(Integer.parseInt(x.C.N))) val = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
+                    //System.out.print(x.C.N + " ");
+                    x = x.R;
+                }
+                board[i][j] = val + 1;
+                //System.out.println();
+                //System.out.println(x.C.N);
+
 
             }
             sb.printBoard(board);
@@ -244,12 +238,9 @@ public class DancingLinksLib {
     public static void main(String[] args) {
 
         SudokuBoard boards = new SudokuBoard();
-        DancingLinksLib dl = new DancingLinksLib();
-        dl.setUp(boards.hardestBoard());
-        int[][] matrix = dl.lib.coverMatrix;
-        String[] consts = dl.lib.constraints;
         long startTime = System.currentTimeMillis();
-        dl.DLX(matrix,consts);
+        DancingLinksLib dl = new DancingLinksLib(9,4,boards.hardestBoard());
+        dl.DLX(dl.eCover.grid);
         long endTime = System.currentTimeMillis();
         System.out.println("Total execution time: " + (endTime-startTime) + "ms");
 

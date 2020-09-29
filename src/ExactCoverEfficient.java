@@ -1,12 +1,12 @@
-public class testing {
+public class ExactCoverEfficient {
 
-    private final int[][] grid;
+    public final int[][] grid;
     private final int n;
     private final int smallN;
     private final int[][] board;
     private final int optionSize;
 
-    public testing(int N, int constraintNumber, int[][] board)
+    public ExactCoverEfficient(int N, int constraintNumber, int[][] board)
     {
         n = N;
         smallN = (int)Math.sqrt(n);
@@ -14,9 +14,11 @@ public class testing {
         optionSize = howManyOptions();
         grid = new int[optionSize][n*n*constraintNumber];
 
+    }
 
-
-
+    public int getOptionSize()
+    {
+        return optionSize;
     }
 
     private int howManyOptions()
@@ -74,25 +76,51 @@ public class testing {
         }
     }
 
+    public int getFirstNumberConstraint(int number)
+    {
+        int setId = number%(n*n);
+        return setId/n;
+
+    }
+
+    public int getSecondNumberConstraint(int number)
+    {
+        int setId = number%(n*n);
+        return setId%n;
+    }
+
+    public boolean isFirstSet(int number)
+    {
+        return number/(n*n) == 0;
+    }
+
+    public boolean isSecondSet(int number)
+    {
+        return number/(n*n) == 1;
+    }
+
 
     public static void main(String[] args) {
 
         SudokuBoard s = new SudokuBoard();
 
         long startTime = System.currentTimeMillis();
-        testing test = new testing(9, 4,s.hardestBoard());
+        ExactCoverEfficient test = new ExactCoverEfficient(9, 4,s.hardestBoard());
         test.fillGrid();
         long endTime = System.currentTimeMillis();
         System.out.println("Total execution time: " + (endTime-startTime) + "ms");
 
-
+/*
         for (int i = 0; i < (test.optionSize); i++) {
             for (int j = 0; j < (4*9*9); j++) {
                 System.out.print(test.grid[i][j]);
             }
             System.out.println();
         }
+        */
 
+        System.out.println(test.isFirstSet(162));
+        System.out.println(test.isSecondSet(162));
         /*
         long startTime2 = System.currentTimeMillis();
 
