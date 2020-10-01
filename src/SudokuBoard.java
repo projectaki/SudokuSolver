@@ -1,3 +1,7 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 public class SudokuBoard {
 
     // Class for initialising test sudoku boards
@@ -89,6 +93,23 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
+    public int[][] bigBoard() throws FileNotFoundException {
+        int[][] SUDOKU;
+        SUDOKU = new int[16][16];
+        Scanner In = new Scanner(new File("src/16.txt"));
+        for(int i = 0; i < 16; ++i)
+        {
+            for(int j = 0; j < 16; ++j)
+            {
+                if(In.hasNextInt())
+                {
+                    SUDOKU[i][j] = In.nextInt();
+                }
+            }
+        }
+        return SUDOKU;
+    }
+
 
     // print a sudoku board
     public void printBoard(int[][] grid)
@@ -102,7 +123,10 @@ public class SudokuBoard {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+
+    SudokuBoard b = new SudokuBoard();
+    b.printBoard(b.bigBoard());
 
 
     }

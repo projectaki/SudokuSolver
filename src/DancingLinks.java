@@ -1,12 +1,14 @@
+import java.io.FileNotFoundException;
 import java.util.Stack;
 
-public class DancingLinksLib {
+public class DancingLinks {
     // External library for constraints, options
-    private final ExactCoverEfficient eCover;
+    private final int[][] matrix;
     // Main header Node to start the search
     private final ColumnNode h;
     // Stack for holding a solution
     private final Stack<Node> solutionStack;
+
 
     private static class Node {
         protected Node L;
@@ -38,27 +40,26 @@ public class DancingLinksLib {
         }
     }
 
-    public DancingLinksLib(int N, int constraintNumber, int[][] board)
+    public DancingLinks(int[][] matrix)
     {
         solutionStack = new Stack<>();
         h = new ColumnNode();
-        eCover = new ExactCoverEfficient(N,constraintNumber,board);
-        eCover.fillGrid();
+        this.matrix = matrix;
+        coverMatrixToLinkedList();
     }
 
-    private void DLX(int[][] matrix)
+    public void DLX()
     {
-        coverMatrixToLinkedList(matrix);
         search();
     }
 
-    // helper method for getting the solutions into the sudoku board
-    // (takes a concat string and extracts the values for Row,Col and Val
+    // Given a cover matrix in 0s and 1s sets up the circular doubly linked list
+    private void coverMatrixToLinkedList() {
+        // Array of columns
+        ColumnNode[] columns = new ColumnNode[matrix[0].length];
 
-
-    private void coverMatrixToLinkedList(int[][] matrix) {
-        ColumnNode[] columns = new ColumnNode[eCover.grid[0].length];
-
+        //Names of colums 0 - to columns length
+        // links the columns together
         for (int i = 0; i < columns.length; i++) {
             ColumnNode x = new ColumnNode(i +"");
             x.L = h.L;
@@ -68,6 +69,7 @@ public class DancingLinksLib {
             columns[i] = x;
         }
 
+        // Add and link nodes together
         for (int j = 0; j < matrix.length;j++ ) {
             Node lastNode = null;
             for (int k = 0; k < matrix[0].length; k++) {
@@ -166,42 +168,25 @@ public class DancingLinksLib {
         if (h.R == h)
         {
 
-            SudokuBoard sb = new SudokuBoard();
-            int[][] board = new int[9][9];
+            SudokuSolution handler = new SudokuSolution(16);
             for (Node x : solutionStack)
             {
                 Node n = x;
-                int i=0;
-                int j=0;
-                int val=0;
-                //System.out.print(x.C.N + " ");
-                if (eCover.isFirstSet(Integer.parseInt(x.C.N)))
-                {
-                    i = eCover.getFirstNumberConstraint(Integer.parseInt(x.C.N));
-                    j = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
-                }
-
-                if(eCover.isSecondSet(Integer.parseInt(x.C.N))) val = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
+                // System.out.print(x.C.N + " ");
+                handler.getParams(x.C.N);
                 x = x.R;
                 while (n != x)
                 {
-                    if (eCover.isFirstSet(Integer.parseInt(x.C.N)))
-                    {
-                        i = eCover.getFirstNumberConstraint(Integer.parseInt(x.C.N));
-                        j = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
-                    }
-
-                    if(eCover.isSecondSet(Integer.parseInt(x.C.N))) val = eCover.getSecondNumberConstraint(Integer.parseInt(x.C.N));
+                    handler.getParams(x.C.N);
                     //System.out.print(x.C.N + " ");
                     x = x.R;
                 }
-                board[i][j] = val + 1;
+                handler.fillSolutionBoard();
                 //System.out.println();
                 //System.out.println(x.C.N);
-
-
             }
-            sb.printBoard(board);
+            handler.printSolution();
+
 
         }
         else
@@ -235,12 +220,14 @@ public class DancingLinksLib {
 
     // method for printing the NodeMatrix (compare to normal Matrix)
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
 
         SudokuBoard boards = new SudokuBoard();
         long startTime = System.currentTimeMillis();
-        DancingLinksLib dl = new DancingLinksLib(9,4,boards.hardestBoard());
-        dl.DLX(dl.eCover.grid);
+
+        SudokuCoverMatrix e = new SudokuCoverMatrix(16,4,boards.bigBoard());
+        DancingLinks dl = new DancingLinks(e.grid);
+        dl.DLX();
         long endTime = System.currentTimeMillis();
         System.out.println("Total execution time: " + (endTime-startTime) + "ms");
 
