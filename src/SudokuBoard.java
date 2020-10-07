@@ -1,3 +1,5 @@
+// Class for creating filled out boards as well as printing boards
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;

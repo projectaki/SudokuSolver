@@ -1,4 +1,4 @@
-import java.util.Arrays;
+//Class for transforming results from DancingLinks column names to Sudoku board i,j and value
 
 public class SudokuSolution {
     private final int[][] board;

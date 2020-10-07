@@ -1,3 +1,5 @@
+//Class which implements Dancing Links algorithm
+
 import java.io.FileNotFoundException;
 import java.util.Stack;
 
@@ -172,7 +174,7 @@ public class DancingLinks {
         if (h.R == h)
         {
 
-            SudokuSolution handler = new SudokuSolution(9);
+            SudokuSolution handler = new SudokuSolution(16);
             for (Node x : solutionStack)
             {
                 Node n = x;
@@ -231,7 +233,7 @@ public class DancingLinks {
         SudokuBoard boards = new SudokuBoard();
         long startTime = System.currentTimeMillis();
 
-        SudokuCoverMatrix e = new SudokuCoverMatrix(9,4,boards.hardestBoard());
+        SudokuCoverMatrix e = new SudokuCoverMatrix(16,4,boards.bigBoard());
         DancingLinks dl = new DancingLinks(e.grid);
         dl.DLX();
         long endTime = System.currentTimeMillis();

@@ -1,4 +1,4 @@
-import java.io.FileNotFoundException;
+// Class for generating a cover matrix for a n dimension sudoku board, given a n dimension, a constraint set number (4 for Sudoku), and a sudoku board
 
 public class SudokuCoverMatrix {
 
