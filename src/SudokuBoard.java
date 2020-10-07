@@ -110,6 +110,12 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
+    public int[][] emptyBoard() {
+        int[][] SUDOKU;
+        SUDOKU = new int[9][9];
+        return SUDOKU;
+    }
+
 
     // print a sudoku board
     public void printBoard(int[][] grid)

@@ -8,6 +8,8 @@ public class DancingLinks {
     private final ColumnNode h;
     // Stack for holding a solution
     private final Stack<Node> solutionStack;
+    //Number of Solutions
+    private int howManySolutions;
 
 
     private static class Node {
@@ -45,6 +47,8 @@ public class DancingLinks {
         solutionStack = new Stack<>();
         h = new ColumnNode();
         this.matrix = matrix;
+        howManySolutions = 0;
+
         coverMatrixToLinkedList();
     }
 
@@ -168,7 +172,7 @@ public class DancingLinks {
         if (h.R == h)
         {
 
-            SudokuSolution handler = new SudokuSolution(16);
+            SudokuSolution handler = new SudokuSolution(9);
             for (Node x : solutionStack)
             {
                 Node n = x;
@@ -186,6 +190,8 @@ public class DancingLinks {
                 //System.out.println(x.C.N);
             }
             handler.printSolution();
+            howManySolutions+=1;
+            System.out.println("------------------------------------------ " + howManySolutions);
 
 
         }
@@ -225,7 +231,7 @@ public class DancingLinks {
         SudokuBoard boards = new SudokuBoard();
         long startTime = System.currentTimeMillis();
 
-        SudokuCoverMatrix e = new SudokuCoverMatrix(16,4,boards.bigBoard());
+        SudokuCoverMatrix e = new SudokuCoverMatrix(9,4,boards.hardestBoard());
         DancingLinks dl = new DancingLinks(e.grid);
         dl.DLX();
         long endTime = System.currentTimeMillis();
