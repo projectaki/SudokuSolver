@@ -1,20 +1,19 @@
-// Class for creating filled out boards as well as printing boards
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * Class for creating filled out boards as well as printing boards
+ */
 public class SudokuBoard {
 
     // Class for initialising test sudoku boards
-    public SudokuBoard()
-    {
+    public SudokuBoard() {
 
     }
 
     // 2x2 test board
-    public int[][] smallTestBoard()
-    {
+    public int[][] smallTestBoard() {
         int[][] SUDOKU;
         SUDOKU = new int[2][2];
         SUDOKU[0][0] = 1;
@@ -22,9 +21,11 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
-    // hardest 9x9 sudoku board
-    public int[][] hardestBoard()
-    {
+    /**
+     * Apperantly the hardest sudoku board
+     * @return Returns the hardest sudoku board
+     */
+    public int[][] hardestBoard() {
         int[][] SUDOKU;
         SUDOKU = new int[9][9];
         SUDOKU[0][0] = 8;
@@ -52,8 +53,7 @@ public class SudokuBoard {
     }
 
     // random sudoku board
-    public int[][] testBoard()
-    {
+    public int[][] testBoard() {
         int[][] SUDOKU;
         SUDOKU = new int[9][9];
         SUDOKU[0][1] = 3;
@@ -95,16 +95,18 @@ public class SudokuBoard {
         return SUDOKU;
     }
 
+    /**
+     * Reads the sudoku board from a txt file (16x16)
+     * @return Returns the sudoku board generated from a txt file
+     * @throws FileNotFoundException If the file is not found throws exception
+     */
     public int[][] bigBoard() throws FileNotFoundException {
         int[][] SUDOKU;
         SUDOKU = new int[16][16];
         Scanner In = new Scanner(new File("src/16.txt"));
-        for(int i = 0; i < 16; ++i)
-        {
-            for(int j = 0; j < 16; ++j)
-            {
-                if(In.hasNextInt())
-                {
+        for(int i = 0; i < 16; ++i) {
+            for(int j = 0; j < 16; ++j) {
+                if(In.hasNextInt()) {
                     SUDOKU[i][j] = In.nextInt();
                 }
             }
@@ -119,9 +121,11 @@ public class SudokuBoard {
     }
 
 
-    // print a sudoku board
-    public void printBoard(int[][] grid)
-    {
+    /**
+     * Print the provided 2D array as a sudoku board
+     * @param grid 2D array for sudoku board
+     */
+    public void printBoard(int[][] grid) {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid.length; j++) {
                 System.out.print(grid[i][j] + "  ");
